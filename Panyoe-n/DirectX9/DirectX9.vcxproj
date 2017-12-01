@@ -152,6 +152,9 @@
   <ItemGroup>
     <ClCompile Include="Direct3D.cpp" />
     <ClCompile Include="DirectInput.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Puyo.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -159,6 +162,9 @@
   <ItemGroup>
     <ClInclude Include="Direct3D.h" />
     <ClInclude Include="DirectInput.h" />
+    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Puyo.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vector2D.h" />

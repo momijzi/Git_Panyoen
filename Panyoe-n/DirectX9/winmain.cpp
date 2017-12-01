@@ -12,10 +12,13 @@
 #include "DirectInput.h"
 
 #include"time.h"
+#include"GameManager.h"
+#include"Map.h"
+#include"Puyo.h"
 
 #define screenWidth 960
 #define screenHeight 960
-#define Pixel 36
+#define Pixel 64
 
 //ウィンドウプロシージャ
 LRESULT CALLBACK WndPrc
@@ -228,12 +231,9 @@ HRESULT MakeWindow
 
 //スプライトのインスタンスを作成
 //パラメータは適当で
-Sprite sprite;
-Sprite sprite2;
-Texture textureColor;
-Texture textureStart;
-Texture textureOver;
-Texture textureClear;
+
+
+
 
 
 
@@ -248,33 +248,25 @@ int _stdcall WinMain
 	int nCmdShow)		//ウィンドウの表示状態
 {
 	//変数の宣言-------------------------------------
-	
+
 	srand((unsigned int)time(NULL));//乱数の初期値設定
 
-	enum GameMode { ZERO, START, PLAY, OVER };
-	GameMode game = ZERO;
+	enum GameMode { TITLE, RESET, PLAY, OVER };
+	GameMode game = TITLE;
 
-	
-	////メッセージボックス
-	//MessageBox(NULL,		//ウィンドウのハンドル 
-	//	TEXT("最初の設定に成功しましたぱちぱち"),		//本文
-	//	TEXT( "テスト-タイトル"),//タイトル
-	//	MB_OK);				//メッセージボックスのタイプ
-	//						//MB_OK  okのボタンが表示
+	int MaxPuyoColor = 5;
+
+	Map map;
+	GameManager gMane;
+	Puyo puyoData;
+
+	puyoData.SetMaxPuyoColor(MaxPuyoColor);
 
 	if (FAILED(RegistClassEx(hInstance)))
 	{
-		MessageBox(NULL,
-			TEXT("ウィンドウクラス設定失敗"),
-			TEXT("テスト-タイトル"),
-			MB_OK);
 		return 0;
 	}
-
 	HWND hWnd = NULL;
-
-	/*正しくウィンドウが作成されれば
-	hWndにウィンドウの識別ハンドルが入る*/
 	if (FAILED(MakeWindow(hInstance, hWnd)))
 	{
 		MessageBox(NULL,
@@ -284,34 +276,29 @@ int _stdcall WinMain
 		return 0;
 	}
 
-	//Direct3Dを管理するクラス(シングルトン)への参照を取得
 	Direct3D& d3d = Direct3D::GetInstance();
 
 	//Direct3DDeviceの作成を試みる
 	if (d3d.TryCreate(hWnd))
 	{
-		/*MessageBox(NULL,
-			TEXT("Direct3D Device作成成功"),
-			TEXT("テスト-タイトル"),
-			MB_OK);*/
 	}
 
 	//レンダーステートの設定  αブレンド
 	d3d.SetRenderState(RENDERSTATE::RENDER_ALPHABLEND);
 
-
+	Sprite sprite;
 	sprite.SetAlpha(0.1);						//透明度の設定
 	sprite.SetSize(Pixel, Pixel);				//画像の大きさ
 	sprite.SetAngle(0);							//画像の回転
 
 	//テクスチャのインスタンスを作成
-	textureColor.Load(_T("Texture/tex.png"));	//0[餌] 1[プレイヤー] 2[壁] 3[ミス]
-	textureStart.Load(_T("Texture/start.png"));	//スタート画像
-	textureOver.Load(_T("Texture/over.bmp"));	//失敗画像
-	textureClear.Load(_T("Texture/clear.png"));	//クリア画像
+	Texture texBox;
+	texBox.Load(_T("Texture/frame.png"));
+	Texture texPuyo;
+	texPuyo.Load(_T("Texture/ColorPuyo.png"));
 
 	//ここで読み込んだ画像の分割処理
-	textureColor.SetDivide(4, 0);				//今回は４分割する
+	texPuyo.SetDivide(5, 1);
 
 	DirectInput * pDi = DirectInput::GetInstance();
 	pDi->Init(hWnd);
@@ -324,7 +311,7 @@ int _stdcall WinMain
 	//quitメッセージが出てくるまでループを繰り返す
 	//quitメッセージは上記のウィンドウプロシージャから送信
 	//送信の条件などはウィンドウプロシージャを確認
-	while (msg.message != WM_QUIT )
+	while (msg.message != WM_QUIT)
 	{
 
 		//PeekMessage
@@ -388,60 +375,113 @@ int _stdcall WinMain
 
 			switch (game)
 			{
-				case ZERO:
-					d3d.ClearScreen();
-
-
-					//壁の部分を初期化
-
-					game = START;
-
-					break;
-				case START:
-					//今回難易度設定ではなくコンフィグいじりにしてみる
+				case TITLE:
 					//エンター押したときPLAYへ
 					if (pDi->KeyJustPressed(DIK_RETURN))
 					{
-						//難易度追加したかった。。。
-						/*switch (degree)
-						{
-							case Easy:
-								Speed = 20;
 
-								break;
-							case Herd:
-								Speed = 10;
-
-								break;
-							case Challenger:
-								Speed = 5;
-
-								break;
-						}*/
-
-						game = PLAY;
+						game = RESET;
 					}
 					break;
-				case PLAY:
-					//とりあえず常時蛇が動くプログラム
+				case RESET:
 
+					puyoData.Release();
+
+					game = PLAY;
+					break;
+				case PLAY:
+					if (gMane.GetContactPuyoLeft() != true || gMane.GetContactPuyoRight() != true)
+					{
+						//ぷよの左右移動
+						if (pDi->KeyJustPressed(DIK_LEFT))//左移動
+						{
+							puyoData.SideMovePuyo(-1);
+						}
+						else if (pDi->KeyJustPressed(DIK_RIGHT))//右移動
+						{
+							puyoData.SideMovePuyo(1);
+						}
+						else if (pDi->KeyJustPressed(DIK_A))//左回転
+						{
+							puyoData.RotaPuyo(-1);
+						}
+						else if (pDi->KeyJustPressed(DIK_S))//右回転
+						{
+							puyoData.RotaPuyo(1);
+						}
+						gMane.MovePuyo(&puyoData,&map);
+					}
 
 					break;
 				case OVER:
 
-					game = ZERO;
-			
-			
+					game = RESET;
+					break;
+			}
+
 
 			//まず描画 
 			d3d.BeginScene();//描画開始
 			//描画
 			d3d.ClearScreen();
 
-		
-			//ゲームのスタートとオーバー時に表示する画像描画//--------------------------------------------------------------------------------------------
-			
-			
+			switch (game)
+			{
+				case TITLE:
+
+					break;
+				case OVER:
+
+					break;
+				default:
+					//スタートとゲームオーバー時以外の描画
+					for (int y = 0; y < map.GetMapy(); y++)
+					{
+						for (int x = 0; x < map.GetMapx(); x++)
+						{
+							sprite.SetPos(Pixel * 2 + (x * Pixel), Pixel / 2 + (y * Pixel));
+							//枠の描画
+							sprite.Draw(texBox);
+							//ぷよが存在するなら描画
+							if (map.GetPuyoData(x, y) != 0)
+							{
+								//存在していたのでその場所の色データを識別
+								switch (map.GetPuyoData(x,y))
+								{
+									case map.RED:
+										texPuyo.SetNum(0, 0);
+										break;
+									case map.GREEN:
+										texPuyo.SetNum(1, 0);
+										break;
+									case map.BLUE:
+										texPuyo.SetNum(2, 0);
+										break;
+									case map.YELLOW:
+										texPuyo.SetNum(3, 0);
+										break;
+									case map.PURPLE:
+										texPuyo.SetNum(4, 0);
+										break;
+								}
+								//ぷよの描画
+								sprite.Draw(texPuyo);
+							}
+							
+						}
+					}
+					//現在動かしているぷよの描画
+					//左
+					Puyo::PuyoColor pData = puyoData.GetPuyoInfo(1);
+					sprite.SetPos(Pixel * 2 + pData.PuyoLeftx, Pixel * 2 + pData.PuyoLefty);
+					texPuyo.SetNum(pData.PuyoLeftColor, 0);
+					sprite.Draw(texPuyo);
+					sprite.SetPos(Pixel * 2 + pData.PuyoRightx, Pixel * 2 + pData.PuyoRighty);
+					texPuyo.SetNum(pData.PuyoRightColor, 0);
+					sprite.Draw(texPuyo);
+
+					break;
+			}
 			//描画終了の合図//--------------------------------------------------------------------------------------------
 
 			d3d.EndScene();
@@ -450,6 +490,5 @@ int _stdcall WinMain
 			d3d.Present();
 		}
 	}
-
 	return 0;
 }
