@@ -233,10 +233,6 @@ HRESULT MakeWindow
 //パラメータは適当で
 
 
-
-
-
-
 //エントリーポイント
 //プログラムの開始関数
 
@@ -339,14 +335,6 @@ int _stdcall WinMain
 
 			pDi->Update();//キー状態の更新
 
-			if (pDi->KeyJustPressed(DIK_A))
-			{
-				MessageBox(NULL,
-					TEXT("キー入力確認"),
-					TEXT("テスト-タイトル"),
-					MB_OK);
-			}
-
 			if (pDi->MouseButtonJustPressed(MOUSE_BUTTON_LEFT))
 				Vector2<int> vec = pDi->MousePosition();
 			{
@@ -384,7 +372,7 @@ int _stdcall WinMain
 					}
 					break;
 				case RESET:
-
+					map.Release();
 					puyoData.Release();
 
 					game = PLAY;
@@ -395,23 +383,26 @@ int _stdcall WinMain
 						//ぷよの左右移動
 						if (pDi->KeyJustPressed(DIK_LEFT))//左移動
 						{
-							puyoData.SideMovePuyo(-1);
+							puyoData.SideMovePuyo(-1,&map);
 						}
 						else if (pDi->KeyJustPressed(DIK_RIGHT))//右移動
 						{
-							puyoData.SideMovePuyo(1);
+							puyoData.SideMovePuyo(1,&map);
 						}
 						else if (pDi->KeyJustPressed(DIK_A))//左回転
 						{
-							puyoData.RotaPuyo(-1);
+							puyoData.RotaPuyo(-1,&map,&gMane);
 						}
 						else if (pDi->KeyJustPressed(DIK_S))//右回転
 						{
-							puyoData.RotaPuyo(1);
+							puyoData.RotaPuyo(1,&map, &gMane);
 						}
-						gMane.MovePuyo(&puyoData,&map);
+						else if (pDi->KeyJustPressed(DIK_RETURN))
+						{
+							gMane.SetEnter(true);
+						}
 					}
-
+					gMane.MovePuyo(&puyoData, &map, &gMane);
 					break;
 				case OVER:
 
@@ -439,7 +430,7 @@ int _stdcall WinMain
 					{
 						for (int x = 0; x < map.GetMapx(); x++)
 						{
-							sprite.SetPos(Pixel * 2 + (x * Pixel), Pixel / 2 + (y * Pixel));
+							sprite.SetPos(Pixel * 2+ ( x * Pixel), Pixel / 2 + (y * Pixel));
 							//枠の描画
 							sprite.Draw(texBox);
 							//ぷよが存在するなら描画
@@ -467,16 +458,16 @@ int _stdcall WinMain
 								//ぷよの描画
 								sprite.Draw(texPuyo);
 							}
-							
 						}
 					}
 					//現在動かしているぷよの描画
 					//左
 					Puyo::PuyoColor pData = puyoData.GetPuyoInfo(1);
-					sprite.SetPos(Pixel * 2 + pData.PuyoLeftx, Pixel * 2 + pData.PuyoLefty);
+					sprite.SetPos(Pixel + (pData.PuyoLeftx + 1) * Pixel, Pixel / 2 + pData.PuyoLefty * Pixel);
 					texPuyo.SetNum(pData.PuyoLeftColor, 0);
 					sprite.Draw(texPuyo);
-					sprite.SetPos(Pixel * 2 + pData.PuyoRightx, Pixel * 2 + pData.PuyoRighty);
+					//右
+					sprite.SetPos(Pixel + (pData.PuyoRightx + 1) * Pixel, Pixel / 2 + pData.PuyoRighty * Pixel);
 					texPuyo.SetNum(pData.PuyoRightColor, 0);
 					sprite.Draw(texPuyo);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 class GameManager;
+class Map;
 
 class Puyo
 {
@@ -24,11 +25,11 @@ public:
 		int PuyoRighty;
 	};
 	//‰¡ˆÚ“®
-	void SideMovePuyo(int w);
+	void SideMovePuyo(int w, Map* map);
 	//‰ñ“]
-	void RotaPuyo(int wh);
+	void RotaPuyo(int wh, Map* map,GameManager* gMane);
 
-	void FallPuyo(GameManager* gMane);
+	void FallPuyo(Map* map,GameManager* gMane);
 
 private:
 

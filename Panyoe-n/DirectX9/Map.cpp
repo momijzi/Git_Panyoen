@@ -60,14 +60,14 @@ void Map::ConnectPuyo(Puyo* puyo)
 			//つながりをすでに検索している物は外す
 			if (GetPuyoData(x, y) != NON && connectPuyo[y][x] != true)
 			{
-				for (int i = 0; i < 2; i++)
+				
+				for (int j = 0; j < 4; j++)
 				{
-					//左から見るが端でないこと確認
-					if (GetPuyoData(x, y) == GetPuyoData(x + AroundData[0], y) &&
-						x + AroundData[0] > 0)
+					for (int i = 1; i < connectFlag[1].ConnectCount; i++)
 					{
-						connectPuyo[y][x + AroundData[0]] = true;
+
 					}
+
 				}
 			}
 		}
@@ -76,6 +76,17 @@ void Map::ConnectPuyo(Puyo* puyo)
 
 void Map::Release()
 {
+	//つながっているかの判定の初期化用配列と使用する配列の初期設定
+	for (int i = 0; i < 2; i++)
+	{
+		connectFlag[i].Upflag = false;
+		connectFlag[i].Downflag = false;
+		connectFlag[i].Leftflag = false;
+		connectFlag[i].Rightflag = false;
+		connectFlag[i].ConnectRoop = 2;
+		connectFlag[i].ConnectCount = 0;
+	}
+	
 	for (int y = 0; y < Mapy; y++)
 	{
 		for (int x = 0; x < Mapx; x++)
@@ -85,3 +96,19 @@ void Map::Release()
 		}
 	}
 }
+
+
+/*//上みてー下みてー左見てと
+if (connectFlag[1].Upflag != true)
+{
+	if (connectFlag[1].Downflag != true)
+	{
+		if (connectFlag[1].Leftflag != true)
+		{
+			if (connectFlag[1].Rightflag != true)
+			{
+
+			}
+		}
+	}
+}*/
