@@ -378,6 +378,7 @@ int _stdcall WinMain
 					game = PLAY;
 					break;
 				case PLAY:
+					gMane.MovePuyo(&puyoData, &map, &gMane);
 					if (gMane.GetContactPuyoLeft() != true || gMane.GetContactPuyoRight() != true)
 					{
 						//ぷよの左右移動
@@ -402,7 +403,7 @@ int _stdcall WinMain
 							gMane.SetEnter(true);
 						}
 					}
-					gMane.MovePuyo(&puyoData, &map, &gMane);
+					
 					break;
 				case OVER:
 
@@ -434,7 +435,7 @@ int _stdcall WinMain
 							//枠の描画
 							sprite.Draw(texBox);
 							//ぷよが存在するなら描画
-							if (map.GetPuyoData(x, y) != 0)
+							if (map.GetPuyoData(x, y) != map.NON)
 							{
 								//存在していたのでその場所の色データを識別
 								switch (map.GetPuyoData(x,y))

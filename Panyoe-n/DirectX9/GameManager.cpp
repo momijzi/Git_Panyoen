@@ -9,6 +9,7 @@ GameManager::GameManager()
 	contactPuyoLeft = false;
 	contactPuyoRight = false;
 	EnterFlag = false;
+	SetFlag = false;
 }
 GameManager:: ~GameManager()
 {
@@ -17,34 +18,49 @@ GameManager:: ~GameManager()
 
 GameManager gMane;
 
-void GameManager::MovePuyo(Puyo* puyo ,Map* map,GameManager* gMane)
+void GameManager::MovePuyo(Puyo* puyo, Map* map, GameManager* gMane)
 {
 	CurrentSpeed++;
-	
-	if (CurrentSpeed == SPEED || EnterFlag == true)
+
+	if (contactPuyoLeft == true && contactPuyoRight == true)
 	{
-		if (contactPuyoLeft == true && contactPuyoRight == true)
+		if (SetFlag != true)
 		{
-			//—¼•û‚ª‰½‚©‚É‚Ô‚Â‚©‚Á‚½
 			map->StorePuyoData(puyo);
-			puyo->NewPuyoData();
-			contactPuyoLeft = false;
-			contactPuyoRight = false;
-			CurrentSpeed = 0;
+			SetFlag = true;
 		}
-		else if (contactPuyoLeft == true || contactPuyoRight == true)
+		map->ConnectPuyo();
+		if (map->GetDouseFlag())
 		{
-			//‚Ç‚¿‚ç•Ð•û‚ª‰½‚©‚É‚Ô‚Â‚©‚Á‚½
-			puyo->FallPuyo(map,gMane);
-			CurrentSpeed = 0;
+			map->DousePuyo();
+		}
+		else if (map->GetFallFlag())
+		{
+			map->mFallPuyo();
 		}
 		else
 		{
-			//ŽŸ’i‚Ö—Ž‰º
-			puyo->FallPuyo(map,gMane);
+			//—¼•û‚ª‰½‚©‚É‚Ô‚Â‚©‚Á‚½
+			puyo->NewPuyoData();
+			contactPuyoLeft = false;
+			contactPuyoRight = false;
+			SetFlag = false;
 			CurrentSpeed = 0;
 		}
-		EnterFlag = false;
 	}
+	else if (CurrentSpeed == SPEED && (contactPuyoLeft == true || contactPuyoRight == true))
+	{
+		//‚Ç‚¿‚ç•Ð•û‚ª‰½‚©‚É‚Ô‚Â‚©‚Á‚½
+		puyo->FallPuyo(map, gMane);
+		CurrentSpeed = 0;
+	}
+	else if(CurrentSpeed == SPEED || EnterFlag == true)
+	{
+		//ŽŸ’i‚Ö—Ž‰º
+		puyo->FallPuyo(map, gMane);
+		CurrentSpeed = 0;
+	}
+	EnterFlag = false;
 }
+
 

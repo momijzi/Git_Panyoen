@@ -9,22 +9,6 @@ public:
 	enum Color { NON, RED, GREEN, BLUE, YELLOW, PURPLE };
 	Color color;
 
-	struct ConnectFlag
-	{
-		//つながる場所が無ければfalseを返す
-		bool Upflag;
-		bool Downflag;
-		bool Leftflag;
-		bool Rightflag;
-
-		//次も調べる必要があるとき再度チェックするためのループ用変数
-		int ConnectRoop;
-
-		//つながっている個数格納
-		int ConnectCount;
-
-	};
-
 private:
 	//ぷよの枠の大きさ
 	static const int Mapx = 6, Mapy = 12;
@@ -33,17 +17,28 @@ private:
 	Color PuyoData[Mapy][Mapx];
 	//つながっていて消えるぷよをtrueに
 	bool connectPuyo[Mapy][Mapx];
-	
-	ConnectFlag connectFlag[2];
+	bool checkPuyo[Mapy][Mapx];
+	bool dousePuyo[Mapy][Mapx];
+	//現在のつながりの数またフラグを示す
+	int ConnectCount;
+	//調べるぷよの色を見る
+	Color checkPuyoColor;
+
+	//行うフラグ
+	bool douseFlag;
+	bool fallFlag;
+	bool NewPuyoFlag;
 
 public:
 	Map();
 	~Map();
 	//ぷよにデータを格納
-	
 
 	int GetMapx() { return Mapx; }
 	int GetMapy() { return Mapy; }
+	bool GetDouseFlag(){ return douseFlag; }
+	bool GetFallFlag() { return fallFlag; }
+	bool GetNewPuyoFlag() { return NewPuyoFlag; }
 	Color GetPuyoData(int x, int y) { return PuyoData[y][x]; }
 	
 
@@ -52,9 +47,13 @@ public:
 	//ぷよのデータを読み込み
 	void StorePuyoData(Puyo* puyo);
 	//つながっているか判断
-	void ConnectPuyo(Puyo* puyo);
+	void ConnectPuyo();
+	void CheckConnectPuyo(int x, int y);
+
+	//つながっているぷよがあった時消す
+	void DousePuyo();
 	//連鎖に応じての落下
-	void mFallPuyo(Puyo* puyo);
+	void mFallPuyo();
 
 	//初期化//リセット用
 	void Release();

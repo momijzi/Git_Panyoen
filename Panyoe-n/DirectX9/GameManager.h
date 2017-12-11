@@ -12,6 +12,7 @@ private:
 	bool contactPuyoLeft;//ぷよが何かとぶつかった
 	bool contactPuyoRight;
 	bool EnterFlag; //エンター押したら――――落ちるうううううう
+	bool SetFlag;
 
 public:
 	GameManager();

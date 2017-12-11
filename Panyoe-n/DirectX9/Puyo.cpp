@@ -89,34 +89,42 @@ void Puyo::FallPuyo(Map* map,GameManager* gMane)
 		gMane->SetContactPuyoLeft(true);
 		gMane->SetContactPuyoRight(true);
 	}
-	//•Ð•û‚ª‚Ü‚¾—Ž‰º‚Å‚«‚éê‡
+	//•Ð•û‚ª‚Ü‚¾“–‚½‚Á‚Ä‚¢‚È‚¢
 	else if ((map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) != map->NON ||
 		map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) != map->NON))
 	{
+		//“–‚½‚Á‚½‘¤‚Ìã‚É‘¶Ý‚·‚é‚½‚ß“®‚¯‚È‚­‚·‚é
 		if (PuyoData[1].PuyoLeftx != PuyoData[1].PuyoRightx)
 		{
-			//•Ð•û‚Ì‚Ý“–‚½‚Á‚½ê‡	//¶‚Ì‚Ý—Ž‰º
-			if (map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) == map->NON)
+			if (gMane->GetContactPuyoLeft() != true)
 			{
-				PuyoData[1].PuyoLefty = PuyoData[1].PuyoLefty + 1;
+				//•Ð•û‚Ì‚Ý“–‚½‚Á‚½ê‡	//¶‚Ì‚Ý—Ž‰º
+				if (map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) == map->NON)
+				{
+					PuyoData[1].PuyoLefty = PuyoData[1].PuyoLefty + 1;
+				}
+				else
+				{
+					//“–‚½‚Á‚Ä‚¢‚é‚à‚µ‚­‚Í‰º‚É‚½‚Ç‚è’…‚¢‚½
+					gMane->SetContactPuyoLeft(true);
+				}
 			}
-			else
-			{
-				//“–‚½‚Á‚Ä‚¢‚é‚à‚µ‚­‚Í‰º‚É‚½‚Ç‚è’…‚¢‚½
-				gMane->SetContactPuyoLeft(true);
-			}
+			
 			//‰E‚Ì‚Ý—Ž‰º
-			if (map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) == map->NON)
+			if (gMane->GetContactPuyoRight() != true)
 			{
-				PuyoData[1].PuyoRighty = PuyoData[1].PuyoRighty + 1;
-			}
-			else
-			{
-				//“–‚½‚Á‚Ä‚¢‚é‚à‚µ‚­‚Í‰º‚É‚½‚Ç‚è’…‚¢‚½
-				gMane->SetContactPuyoRight(true);
+				if (map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) == map->NON)
+				{
+					PuyoData[1].PuyoRighty = PuyoData[1].PuyoRighty + 1;
+				}
+				else
+				{
+					//“–‚½‚Á‚Ä‚¢‚é‚à‚µ‚­‚Í‰º‚É‚½‚Ç‚è’…‚¢‚½
+					gMane->SetContactPuyoRight(true);
+				}
 			}
 		}
-		else
+		else//c‚Éd‚È‚Á‚Ä‚¢‚éê‡
 		{
 			//ŽŸ‚Ì‚Õ‚æ“Š‰ºˆ—
 			gMane->SetContactPuyoLeft(true);
