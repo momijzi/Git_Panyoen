@@ -13,7 +13,7 @@ Puyo::~Puyo()
 
 }
 
-Map map;
+Map map();
 
 
 void Puyo::SideMovePuyo(int w ,Map* map)
@@ -82,58 +82,33 @@ void Puyo::RotaPuyo(int wh ,Map* map, GameManager* gMane)
 
 void Puyo::FallPuyo(Map* map,GameManager* gMane)
 {
-	//ぷよが何かに当たったもしくは下にたどり着いた
-	if (PuyoData[1].PuyoLefty == map->GetMapy() - 1 || PuyoData[1].PuyoRighty == map->GetMapy() - 1)
+	//左は止まった
+	if(map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) != map->NON ||
+		PuyoData[1].PuyoLefty >= map->GetMapy() - 1)
 	{
-		//次のぷよ投下処理
 		gMane->SetContactPuyoLeft(true);
+	}
+	//右は止まった
+	if (map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) != map->NON ||
+		PuyoData[1].PuyoRighty >= map->GetMapy() - 1)
+	{
 		gMane->SetContactPuyoRight(true);
 	}
-	//片方がまだ当たっていない
-	else if ((map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) != map->NON ||
-		map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) != map->NON))
+	//縦でおいていた、長くは聞くまい、、次へ移行
+	if ((gMane->GetContactPuyoLeft() || gMane->GetContactPuyoRight()) &&
+		PuyoData[1].PuyoLeftx == PuyoData[1].PuyoRightx)
 	{
-		//当たった側の上に存在するため動けなくする
-		if (PuyoData[1].PuyoLeftx != PuyoData[1].PuyoRightx)
-		{
-			if (gMane->GetContactPuyoLeft() != true)
-			{
-				//片方のみ当たった場合	//左のみ落下
-				if (map->GetPuyoData(PuyoData[1].PuyoLeftx, PuyoData[1].PuyoLefty + 1) == map->NON)
-				{
-					PuyoData[1].PuyoLefty = PuyoData[1].PuyoLefty + 1;
-				}
-				else
-				{
-					//当たっているもしくは下にたどり着いた
-					gMane->SetContactPuyoLeft(true);
-				}
-			}
-			
-			//右のみ落下
-			if (gMane->GetContactPuyoRight() != true)
-			{
-				if (map->GetPuyoData(PuyoData[1].PuyoRightx, PuyoData[1].PuyoRighty + 1) == map->NON)
-				{
-					PuyoData[1].PuyoRighty = PuyoData[1].PuyoRighty + 1;
-				}
-				else
-				{
-					//当たっているもしくは下にたどり着いた
-					gMane->SetContactPuyoRight(true);
-				}
-			}
-		}
-		else//縦に重なっている場合
-		{
-			//次のぷよ投下処理
-			gMane->SetContactPuyoLeft(true);
-			gMane->SetContactPuyoRight(true);
-		}
+		gMane->SetContactPuyoRight(true);
+		gMane->SetContactPuyoLeft(true);
 	}
-	else
-	{		
+
+	//特に先に問題が無ければ進むように！
+	if (gMane->GetContactPuyoLeft() != true)
+	{
 		PuyoData[1].PuyoLefty = PuyoData[1].PuyoLefty + 1;
+	}
+	if (gMane->GetContactPuyoRight() != true)
+	{
 		PuyoData[1].PuyoRighty = PuyoData[1].PuyoRighty + 1;
 	}
 }

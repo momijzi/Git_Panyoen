@@ -25,4 +25,6 @@ public:
 	bool GetContactPuyoRight() { return contactPuyoRight; }
 
 	void MovePuyo(Puyo* puyo ,Map* map, GameManager* gMane);
+
+	void Release();
 };

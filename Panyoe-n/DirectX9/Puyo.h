@@ -38,6 +38,9 @@ private:
 	PuyoColor PuyoData[2];
 public:
 
+	int GetMaxPuyoColor() { return MaxPuyoColor; }
+
+	void ResetPuyoData(int num);
 	void SetMaxPuyoColor(int mColor) { MaxPuyoColor = mColor; }
 	PuyoColor GetPuyoInfo(int Num) { return PuyoData[Num]; }
 	//新しいぷよを待機しているデータから呼び出し

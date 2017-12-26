@@ -52,7 +52,4 @@ public:
 	float GetAlpha()
 	{ return alpha; }
 
-	
-
-
 };

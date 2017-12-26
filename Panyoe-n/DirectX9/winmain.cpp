@@ -250,11 +250,12 @@ int _stdcall WinMain
 	enum GameMode { TITLE, RESET, PLAY, OVER };
 	GameMode game = TITLE;
 
-	int MaxPuyoColor = 5;
+	int MaxPuyoColor = 3;
 
-	Map map;
+	
 	GameManager gMane;
 	Puyo puyoData;
+	Map map;
 
 	puyoData.SetMaxPuyoColor(MaxPuyoColor);
 
@@ -287,11 +288,25 @@ int _stdcall WinMain
 	sprite.SetSize(Pixel, Pixel);				//画像の大きさ
 	sprite.SetAngle(0);							//画像の回転
 
+	Sprite sFullSize;
+	sFullSize.SetAlpha(0.1);
+	sFullSize.SetSize(screenWidth, screenHeight);
+	sFullSize.SetAngle(0);
+	sFullSize.SetPos(screenWidth / 2, screenHeight / 2);
+
 	//テクスチャのインスタンスを作成
 	Texture texBox;
 	texBox.Load(_T("Texture/frame.png"));
 	Texture texPuyo;
 	texPuyo.Load(_T("Texture/ColorPuyo.png"));
+
+	//テクスチャ　プレイ中以外
+	Texture texStart;
+	texStart.Load(_T("Texture/start.png"));
+	Texture texOver;
+	texOver.Load(_T("Texture/over.png"));
+
+
 
 	//ここで読み込んだ画像の分割処理
 	texPuyo.SetDivide(5, 1);
@@ -374,6 +389,7 @@ int _stdcall WinMain
 				case RESET:
 					map.Release();
 					puyoData.Release();
+					gMane.Release();
 
 					game = PLAY;
 					break;
@@ -404,10 +420,22 @@ int _stdcall WinMain
 						}
 					}
 					
+					//trueを返したときゲームオーバーへ移動
+					//これはぷよが上まで募ってしまったことを示す
+					if (map.GetOverFlag())
+					{
+						game = OVER;
+					}
+
 					break;
 				case OVER:
 
-					game = RESET;
+					//リプレイする
+					if (pDi->KeyJustPressed(DIK_RETURN))
+					{
+						game = RESET;
+					}
+
 					break;
 			}
 
@@ -420,10 +448,10 @@ int _stdcall WinMain
 			switch (game)
 			{
 				case TITLE:
-
+					sFullSize.Draw(texStart);
 					break;
 				case OVER:
-
+					sFullSize.Draw(texOver);
 					break;
 				default:
 					//スタートとゲームオーバー時以外の描画
@@ -462,25 +490,30 @@ int _stdcall WinMain
 						}
 					}
 					//現在動かしているぷよの描画
-					//左
-					Puyo::PuyoColor pData = puyoData.GetPuyoInfo(1);
-					sprite.SetPos(Pixel + (pData.PuyoLeftx + 1) * Pixel, Pixel / 2 + pData.PuyoLefty * Pixel);
-					texPuyo.SetNum(pData.PuyoLeftColor, 0);
-					sprite.Draw(texPuyo);
-					//右
-					sprite.SetPos(Pixel + (pData.PuyoRightx + 1) * Pixel, Pixel / 2 + pData.PuyoRighty * Pixel);
-					texPuyo.SetNum(pData.PuyoRightColor, 0);
-					sprite.Draw(texPuyo);
+					/*if (gMane.GetContactPuyoLeft() != true && gMane.GetContactPuyoRight() != true)
+					{*/
+						//左
+						Puyo::PuyoColor pData = puyoData.GetPuyoInfo(1);
+						sprite.SetPos(Pixel + (pData.PuyoLeftx + 1) * Pixel, Pixel / 2 + pData.PuyoLefty * Pixel);
+						texPuyo.SetNum(pData.PuyoLeftColor, 0);
+						sprite.Draw(texPuyo);
 
+						//右
+						sprite.SetPos(Pixel + (pData.PuyoRightx + 1) * Pixel, Pixel / 2 + pData.PuyoRighty * Pixel);
+						texPuyo.SetNum(pData.PuyoRightColor, 0);
+						sprite.Draw(texPuyo);
+					//}
 					break;
 			}
 			//描画終了の合図//--------------------------------------------------------------------------------------------
-
+			
 			d3d.EndScene();
 
 			//バックバッファをフロントへ反映
 			d3d.Present();
 		}
 	}
+	map.Release();
+
 	return 0;
 }
