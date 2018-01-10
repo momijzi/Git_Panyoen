@@ -53,14 +53,10 @@ private:
 	bool SufferLabel;
 
 	//行うフラグ
-	bool overFlag;
-	bool inspectFlag;
 	bool douseFlag;
 	bool fallFlag;
 	bool NewPuyoFlag;
-	int ConnectCount;
-	bool Connectflag;
-	bool cheakflag;
+	bool DrowFlag;
 
 public:
 	Map();
@@ -69,20 +65,15 @@ public:
 
 	int GetMapx() { return Mapx; }
 	int GetMapy() { return Mapy; }
-	bool GetOverFlag() { return overFlag; }
 	bool GetDouseFlag(){ return douseFlag; }
 	bool GetFallFlag() { return fallFlag; }
 	bool GetNewPuyoFlag() { return NewPuyoFlag; }
-	bool GetCheakFlag() { return cheakflag; }
 	Color GetPuyoData(int x, int y) { return PuyoData[y][x]; }
 
 
 	//動かしていたぷよの最後の座標を格納
-	void SetPuyoData(int x, int y, int num);
-	//ぷよのデータを読み込み
-	void StorePuyoData(Puyo* puyo);
+	void SetPuyoData(int x, int y, int color);
 
-	void CheckConnectPuyo(Puyo* puyo);
 	//ぷよの関連データを再度チェックする
 	void RastaPuyoData(Puyo* puyo);
 

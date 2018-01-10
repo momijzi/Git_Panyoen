@@ -19,9 +19,9 @@ Map::~Map()
 //	SetPuyoData(pData.PuyoRightx, pData.PuyoRighty, pData.PuyoRightColor);
 //}
 
-void Map::SetPuyoData(int x, int y, int num)
+void Map::SetPuyoData(int x, int y, int color)
 {
-	switch (num)
+	switch (color)
 	{
 		case 0:
 			PuyoData[y][x] = RED;
@@ -45,233 +45,59 @@ void Map::SetPuyoData(int x, int y, int num)
 }
 
 //---------------------------------------------------------------------------------------------
-//つながっているかどうか確認する処理の部分
-void Map::CheckConnectPuyo(Puyo* puyo)
-{
-	//四方向を見てつながりの数を見る
-	Puyo::PuyoColor pData =
-		puyo->GetPuyoInfo(1);
 
-	//上以外のつながりを確認
-	//操作しているぷよから見て左のぷよのつながりを見る
-	
-	for (int cheak = 0; cheak < 2; cheak++)
-	{
-		ConnectCount = 1;
-		//色を調べる
-		//最初左
-		if (cheak == 0)
-		{
-			ColorNum = pData.PuyoLeftColor;
-			PuyocheakX = pData.PuyoLeftx;
-			PuyocheakY = pData.PuyoLefty;
-			SetPuyoData(pData.PuyoLeftx, pData.PuyoLefty, pData.PuyoLeftColor);
-		}
-		else
-		{
-			ColorNum = pData.PuyoRightColor;
-			PuyocheakX = pData.PuyoRightx;
-			PuyocheakY = pData.PuyoRighty;
-			SetPuyoData(pData.PuyoRightx, pData.PuyoRighty, pData.PuyoRightColor);
-		}
-
-		std::vector<ConnectNum>::iterator it = ConnectData[ColorNum].begin();
-
-		//左右
-		for (int x = -1; x < 2; x += 2)
-		{
-			if (PuyocheakX + x >= 0 && PuyocheakX + x < GetMapx() &&
-				RasutaData[PuyocheakY][PuyocheakX + x] != 0)//範囲外を排除
-			{
-				if (PuyoData[PuyocheakY][PuyocheakX + x] == ColorNum)
-				{
-					ConnectCount = ConnectCount +
-						ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX + x] - 1].Connect;
-				}
-			}
-		}
-		//下
-		if (PuyocheakY + 1 < GetMapy())//範囲外を排除
-		{
-			//左右と同じ組だとはじく
-			if (PuyoData[PuyocheakY + 1][PuyocheakX] == ColorNum && ConnectCount < 4 &&
-				RasutaData[PuyocheakY + 1][PuyocheakX] != 0)
-			{
-				ConnectCount = ConnectCount +
-					ConnectData[ColorNum][RasutaData[PuyocheakY + 1][PuyocheakX] - 1].Connect;
-			}
-		}
-		//上は二回目しか入る必要がなく縦に積んでいるときにしか調べる必要がない
-		if (PuyocheakY - 1 >= 0 && cheak == 1 && PuyocheakY - 1 == pData.PuyoLefty &&
-			RasutaData[PuyocheakY - 1][PuyocheakX] != 0)//範囲外を排除
-		{
-			Connectflag = true;
-			if (PuyocheakX + 1 < GetMapx())
-			{
-				if (RasutaData[PuyocheakY][PuyocheakX + 1] != RasutaData[PuyocheakY - 1][PuyocheakX])
-				{
-					Connectflag = false;
-				}
-			}
-			if (PuyocheakX - 1 >= 0 && !Connectflag)
-			{
-				if (RasutaData[PuyocheakY][PuyocheakX - 1] != RasutaData[PuyocheakY - 1][PuyocheakX])
-				{
-					Connectflag = false;
-				}
-			}
-			//左右と同じ組だとはじく
-			if (PuyoData[PuyocheakY - 1][PuyocheakX] == ColorNum && Connectflag)
-			{
-				ConnectCount = ConnectCount +
-					ConnectData[ColorNum][RasutaData[PuyocheakY - 1][PuyocheakX] - 1].Connect;
-			}
-		}
-		//4つ以上くっついていることが確認できました
-		if (ConnectCount > 3)
-		{
-			douseFlag = true;
-		}
-		//1つ以上の繋がりを確認しました
-		else if (ConnectCount > 1)
-		{
-			cheakflag = true;
-			//Connectflag = false;
-			////左
-			//if (PuyocheakX - 1 >= 0)
-			//{
-			//	if (PuyoData[PuyocheakY][PuyocheakX - 1] == ColorNum)
-			//	{
-			//		RasutaData[PuyocheakY][PuyocheakX] = RasutaData[PuyocheakY][PuyocheakX - 1];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//		Connectflag = true;
-			//	}
-			//}
-			////右
-			//if (PuyocheakX + 1 < GetMapx())
-			//{
-			//	if (PuyoData[PuyocheakY][PuyocheakX + 1] == ColorNum && !Connectflag)
-			//	{
-			//		RasutaData[PuyocheakY][PuyocheakX] = RasutaData[PuyocheakY][PuyocheakX + 1];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//		Connectflag = true;
-			//	}
-			//	//繋がりは３つ以下なのでここに入ったということは一つと二回つながったということ
-			//	else if(PuyoData[PuyocheakY][PuyocheakX + 1] == ColorNum)
-			//	{
-			//		it = ConnectData[ColorNum].begin();
-			//		it += RasutaData[PuyocheakY][PuyocheakX + 1] - 1;
-			//		it = ConnectData[ColorNum].erase(it);
-			//		it = ConnectData[ColorNum].begin();
-			//		RasutaData[PuyocheakY][PuyocheakX + 1] = RasutaData[PuyocheakY][PuyocheakX];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//	}
-			//}
-			////下
-			//if (PuyocheakY + 1 < GetMapy())
-			//{
-			//	if (PuyoData[PuyocheakY + 1][PuyocheakX] == ColorNum && !Connectflag)
-			//	{
-			//		RasutaData[PuyocheakY][PuyocheakX] = RasutaData[PuyocheakY + 1][PuyocheakX];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//		Connectflag = true;
-			//	}
-			//	else if(PuyoData[PuyocheakY + 1][PuyocheakX] == ColorNum && Connectflag)
-			//	{
-			//		it = ConnectData[ColorNum].begin();
-			//		it += RasutaData[PuyocheakY + 1][PuyocheakX] - 1;
-			//		it = ConnectData[ColorNum].erase(it);
-			//		it = ConnectData[ColorNum].begin();
-			//		RasutaData[PuyocheakY + 1][PuyocheakX] = RasutaData[PuyocheakY][PuyocheakX];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//	}
-			//}
-			////上
-			//if (PuyocheakY - 1 < GetMapy() && cheak == 1)
-			//{
-			//	if (PuyoData[PuyocheakY - 1][PuyocheakX] == ColorNum && !Connectflag)
-			//	{
-			//		RasutaData[PuyocheakY][PuyocheakX] = RasutaData[PuyocheakY - 1][PuyocheakX];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//		Connectflag = true;
-			//	}
-			//	else if (PuyoData[PuyocheakY - 1][PuyocheakX] == ColorNum && Connectflag)
-			//	{
-			//		it = ConnectData[ColorNum].begin();
-			//		it += RasutaData[PuyocheakY - 1][PuyocheakX] - 1;
-			//		it = ConnectData[ColorNum].erase(it);
-			//		it = ConnectData[ColorNum].begin();
-			//		RasutaData[PuyocheakY - 1][PuyocheakX] = RasutaData[PuyocheakY][PuyocheakX];
-			//		ConnectData[ColorNum][RasutaData[PuyocheakY][PuyocheakX] - 1].Connect++;
-			//	}
-			//}
-		}
-		else
-		{
-			ConnectCheck.Connect = 1;
-			ConnectData[ColorNum].push_back(ConnectCheck);
-			RasutaData[PuyocheakY][PuyocheakX] = ConnectData[ColorNum].size();
-		}
-	}
-}
 void Map::DousePuyo(Puyo* puyo)
 {
-	douseFlag = false;
 	//色の数だけループ
 	for (int Puyo = 0; Puyo < puyo->GetMaxPuyoColor(); Puyo++)
 	{
 		douseData.clear();
 		groupCount = 0;
 		//繋がりが４つ以上なら殺
-		for (std::vector<ConnectNum>::iterator it = ConnectData[Puyo].begin();
-			it != ConnectData[Puyo].end(); it++)
 		{
-			groupCount++;
-			if (it->Connect > 3)
+			std::vector<ConnectNum>::iterator it = ConnectData[Puyo].begin();
+			while (it != ConnectData[Puyo].end())
 			{
-				//消すべきなぷよを別配列に格納
-				douseData.push_back(groupCount);
-				//ベクタのデータを消す
-				it=ConnectData[Puyo].erase(it);
-				if (it == ConnectData[Puyo].end())
+				groupCount++;
+				if (it->Connect > 3)
 				{
-					break;
+					//消すべきなぷよを別配列に格納
+					douseData.push_back(groupCount);
+					//ベクタのデータを消す
+					it = ConnectData[Puyo].erase(it);
 				}
 				else
 				{
-					it--;
+					it++;
 				}
-				
-				//消すフラグ成立
-				if(!douseFlag)
-				douseFlag = true;
 			}
 		}
-		if (douseFlag)
+		groupCount = 0;
+		//消せるぷよを消去
+		for (std::list<int>::iterator it = douseData.begin();
+			it != douseData.end(); it++)
 		{
-			//消せるぷよを消去
-			for (std::list<int>::iterator it = douseData.begin();
-				it != douseData.end(); it++)
+			groupCount++;
+			for (int y = 0; y < GetMapy(); y++)
 			{
-				for (int y = 0; y < GetMapy(); y++)
+				for (int x = 0; x < GetMapx(); x++)
 				{
-					for (int x = 0; x < GetMapx(); x++)
+					if (PuyoData[y][x] == Puyo && RasutaData[y][x] == groupCount)
 					{
-						if (PuyoData[y][x] == Puyo && RasutaData[y][x] == *it)
+						//繋がっているので消す
+						//既に調べれている分だけ消去
+						PuyoData[y][x] = NON;
+						if (!fallFlag)
 						{
-							//繋がっているので消す
-							//既に調べれている分だけ消去
-							PuyoData[y][x] = NON;
-							if (!fallFlag)
-							{
-								fallFlag = true;
-							}
+							fallFlag = true;
 						}
 					}
 				}
 			}
 		}
 	}
+	douseFlag = false;
+	DrowFlag = false;
 }
 
 void Map::mFallPuyo()
@@ -289,10 +115,9 @@ void Map::mFallPuyo()
 					PuyoData[y + 1][x] = PuyoData[y][x];
 					PuyoData[y][x] = NON;
 					if (!fallFlag)
+					{
 						fallFlag = true;
-
-					if (!douseFlag)
-						douseFlag = true;
+					}
 				}
 			}
 		}
@@ -301,10 +126,6 @@ void Map::mFallPuyo()
 
 void Map::RastaPuyoData(Puyo* puyo)
 {
-	if (cheakflag)
-	{
-		cheakflag = false;
-	}
 	//ベクタ初期化　再度内部データをチェックする
 	for (int i = 0; i < puyo->GetMaxPuyoColor(); i++)
 	{
@@ -354,7 +175,7 @@ void Map::RastaPuyoData(Puyo* puyo)
 							if (miniNum == 0)
 							{
 								miniNum = RasutaData[y - 1][x];
-							}		
+							}
 							else if (miniNum != RasutaData[y - 1][x])
 							{
 								SufferLabel = true;
@@ -419,24 +240,25 @@ void Map::RastaPuyoData(Puyo* puyo)
 			for (int x = GetMapx() - 1; x >= 0; x--)
 			{
 				//０以外の時は何か任意の色があるとき
-				if (RasutaData[y][x] != 0)
+				if (PuyoData[y][x] == Color)
 				{
-					if (PuyoData[y][x - 1] == Color)
+					if (x - 1 >= 0)
 					{
-						if (x - 1 >= 0)
+						if (PuyoData[y][x - 1] == Color)
 						{
 							//左のあたいを現在の指定している座標の値に上書き
-							if (RasutaData[y][x] != RasutaData[y][x - 1] &&
-								PuyoData[y][x - 1] == Color)
+							if (RasutaData[y][x] != RasutaData[y][x - 1])
 							{
 								RasutaData[y][x - 1] = RasutaData[y][x];
 							}
 						}
-						if (y + 1 < GetMapy())
+					}
+					if (y + 1 < GetMapy())
+					{
+						if (PuyoData[y + 1][x] == Color)
 						{
 							//下のあたいを現在の指定している座標の値に上書き
-							if (RasutaData[y][x] != RasutaData[y + 1][x] &&
-								PuyoData[y + 1][x] == Color)
+							if (RasutaData[y][x] != RasutaData[y + 1][x])
 							{
 								RasutaData[y + 1][x] = RasutaData[y][x];
 							}
@@ -445,6 +267,7 @@ void Map::RastaPuyoData(Puyo* puyo)
 				}
 			}
 		}
+
 		//グループごとにつながりの数を渡していく
 		for (int Num = 1; Num <= groupCount; Num++)
 		{
@@ -461,8 +284,18 @@ void Map::RastaPuyoData(Puyo* puyo)
 					}
 				}
 			}
-			//ベクタの後ろに格納
-			ConnectData[Color].push_back(ConnectCheck);
+			//0以外の時入る
+			if (ConnectCheck.Connect != 0)
+			{
+				//ベクタの後ろに格納
+				ConnectData[Color].push_back(ConnectCheck);
+
+				//つながりが４つ以上あればぷよを削除
+				if (ConnectCheck.Connect > 3 && !douseFlag)
+				{
+					douseFlag = true;
+				}
+			}
 		}
 	}
 }
@@ -471,14 +304,10 @@ void Map::Release()
 {
 	//つながっているかの判定の初期化用配列と使用する配列の初期設定
 	checkPuyoColor = NON;
-	overFlag = false;
-	inspectFlag = false;
 	douseFlag = false;
 	fallFlag = false;
 	NewPuyoFlag = false;
 	SufferLabel = false;
-	Connectflag = false;
-	cheakflag = false;
 
 	ColorNum = 0;
 

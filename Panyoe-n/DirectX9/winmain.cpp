@@ -419,13 +419,6 @@ int _stdcall WinMain
 							gMane.SetEnter(true);
 						}
 					}
-					
-					//trueを返したときゲームオーバーへ移動
-					//これはぷよが上まで募ってしまったことを示す
-					if (map.GetOverFlag())
-					{
-						game = OVER;
-					}
 
 					break;
 				case OVER:
@@ -490,8 +483,9 @@ int _stdcall WinMain
 						}
 					}
 					//現在動かしているぷよの描画
-					/*if (gMane.GetContactPuyoLeft() != true && gMane.GetContactPuyoRight() != true)
-					{*/
+					if(gMane.GetPuyoFlag() || (gMane.GetContactPuyoLeft() != true 
+						|| gMane.GetContactPuyoRight() != true))
+					{
 						//左
 						Puyo::PuyoColor pData = puyoData.GetPuyoInfo(1);
 						sprite.SetPos(Pixel + (pData.PuyoLeftx + 1) * Pixel, Pixel / 2 + pData.PuyoLefty * Pixel);
@@ -502,7 +496,7 @@ int _stdcall WinMain
 						sprite.SetPos(Pixel + (pData.PuyoRightx + 1) * Pixel, Pixel / 2 + pData.PuyoRighty * Pixel);
 						texPuyo.SetNum(pData.PuyoRightColor, 0);
 						sprite.Draw(texPuyo);
-					//}
+					}
 					break;
 			}
 			//描画終了の合図//--------------------------------------------------------------------------------------------
